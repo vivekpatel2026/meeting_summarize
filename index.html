@@ -149,24 +149,24 @@
     }
 });
 
-        shareBtn.addEventListener('click', () => {
-            //const email = document.getElementById('email').value;
-            // NEW CODE
-             summaryDiv.innerHTML = marked.parse(data.summary);  // Use innerText to get clean text
+        // shareBtn.addEventListener('click', () => {
+        //     //const email = document.getElementById('email').value;
+        //     // NEW CODE
+        //      summaryDiv.innerHTML = marked.parse(data.summary);  // Use innerText to get clean text
 
-            if (!email.trim()) {
-                showMessage('Please enter a recipient email.');
-                return;
-            }
-            if (!summary.trim()) {
-                showMessage('There is no summary to share.');
-                return;
-            }
+        //     if (!email.trim()) {
+        //         showMessage('Please enter a recipient email.');
+        //         return;
+        //     }
+        //     if (!summary.trim()) {
+        //         showMessage('There is no summary to share.');
+        //         return;
+        //     }
 
-            const subject = "Meeting Summary";
-            const body = encodeURIComponent(summary);
-           // window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
-        });
+        //     const subject = "Meeting Summary";
+        //     const body = encodeURIComponent(summary);
+        //    // window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
+        // });
     </script>
 </body>
 </html>
