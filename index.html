@@ -3,28 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Meeting Notes Summarizer</title>
+    <title>AI Text Summarizer</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- ADD THIS LINE 👇 -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
-        }
-        .loader {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #3498db;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -32,16 +17,16 @@
 
     <div class="container mx-auto p-4 sm:p-6 lg:p-8 max-w-4xl">
         <header class="text-center mb-8">
-            <h1 class="text-3xl sm:text-4xl font-bold text-gray-900">AI Meeting Notes Summarizer</h1>
-            <p class="text-gray-600 mt-2">Upload a transcript and get a summary tailored to your needs.</p>
+            <h1 class="text-3xl sm:text-4xl font-bold text-gray-900">AI Text Summarizer</h1>
+            <p class="text-gray-600 mt-2">Upload any text and get a summary tailored to your needs.</p>
         </header>
 
         <main class="bg-white p-6 rounded-lg shadow-md">
             <!-- Input Section -->
             <div class="space-y-6">
                 <div>
-                    <label for="transcript" class="block text-lg font-medium text-gray-700 mb-2">Meeting Transcript</label>
-                    <textarea id="transcript" rows="10" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out" placeholder="Paste your meeting transcript here..."></textarea>
+                    <label for="transcript" class="block text-lg font-medium text-gray-700 mb-2">Your Text (Transcript, Notes, etc.)</label>
+                    <textarea id="transcript" rows="10" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out" placeholder="Paste your meeting notes, call transcript, or any other text here..."></textarea>
                 </div>
 
                 <div>
@@ -51,25 +36,21 @@
 
                 <button id="generateBtn" class="w-full bg-blue-600 text-white font-semibold py-3 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out flex items-center justify-center">
                     <span id="btn-text">Generate Summary</span>
-                    <svg id="btn-loader" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
                 </button>
             </div>
 
             <!-- Output Section -->
             <div id="summary-section" class="mt-8 hidden">
                 <h2 class="text-2xl font-semibold mb-4 text-gray-800">Generated Summary</h2>
-                <div id="summary" contenteditable="true" class="w-full p-4 border border-gray-300 rounded-md bg-gray-50 min-h-[150px] focus:outline-none focus:ring-2 focus:ring-blue-500"></div>
+                <div id="summary" contenteditable="true" class="prose max-w-none w-full p-4 border border-gray-300 rounded-md bg-gray-50 min-h-[150px] focus:outline-none focus:ring-2 focus:ring-blue-500"></div>
 
-                <!-- <div class="mt-6">
+                <div class="mt-6">
                     <label for="email" class="block text-lg font-medium text-gray-700 mb-2">Share via Email</label>
                     <div class="flex flex-col sm:flex-row gap-4">
-                        <input type="email" id="email" class="flex-grow p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out" placeholder="Enter recipient's email address">
-                        <button id="shareBtn" class="bg-green-600 text-white font-semibold py-3 px-6 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-150 ease-in-out">Share</button>
+                        <input type="email" id="email" class="flex-grow p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="Enter recipient's email address">
+                        <button id="shareBtn" class="bg-green-600 text-white font-semibold py-3 px-6 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition">Share</button>
                     </div>
-                </div> -->
+                </div>
             </div>
              <!-- Message Box -->
             <div id="messageBox" class="hidden fixed top-5 right-5 bg-red-500 text-white py-2 px-4 rounded-lg shadow-lg transition-opacity duration-300">
@@ -81,15 +62,17 @@
     <script>
         const generateBtn = document.getElementById('generateBtn');
         const btnText = document.getElementById('btn-text');
-        const btnLoader = document.getElementById('btn-loader');
         const summarySection = document.getElementById('summary-section');
         const summaryDiv = document.getElementById('summary');
         const shareBtn = document.getElementById('shareBtn');
         const messageBox = document.getElementById('messageBox');
         const messageText = document.getElementById('messageText');
 
-        function showMessage(message) {
+        const API_BASE_URL = 'http://localhost:3000';
+
+        function showMessage(message, isError = true) {
             messageText.textContent = message;
+            messageBox.className = `fixed top-5 right-5 text-white py-2 px-4 rounded-lg shadow-lg transition-opacity duration-300 ${isError ? 'bg-red-500' : 'bg-green-500'}`;
             messageBox.classList.remove('hidden');
             setTimeout(() => {
                 messageBox.classList.add('hidden');
@@ -97,76 +80,81 @@
         }
 
         generateBtn.addEventListener('click', async () => {
-    const transcript = document.getElementById('transcript').value;
-    const prompt = document.getElementById('prompt').value;
+            const transcript = document.getElementById('transcript').value;
+            const userInstruction = document.getElementById('prompt').value;
 
-    if (!transcript.trim()) {
-        showMessage('Please paste a transcript.');
-        return;
-    }
-    if (!prompt.trim()) {
-        showMessage('Please provide a custom instruction.');
-        return;
-    }
+            if (!transcript.trim() || !userInstruction.trim()) {
+                showMessage('Please provide both text and an instruction.');
+                return;
+            }
 
-    // Show loader and disable button
-    btnText.textContent = 'Generating...';
-    btnLoader.classList.remove('hidden');
-    generateBtn.disabled = true;
+            const originalText = btnText.innerHTML;
+            btnText.innerHTML = 'Generating...';
+            generateBtn.disabled = true;
 
-    try {
-        const response = await fetch('https://assessment-project-meeting-summery.onrender.com/summarize', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                transcript: transcript,
-                prompt: prompt
-            }),
+            try {
+                const response = await fetch(`${API_BASE_URL}/summarize`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ transcript: transcript, prompt: userInstruction }),
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    summaryDiv.innerHTML = marked.parse(data.summary);
+                    summarySection.classList.remove('hidden');
+                } else {
+                    const error = await response.json();
+                    showMessage(`Error: ${error.message || 'Request failed'}`);
+                }
+            } catch (error) {
+                console.error('Error calling /summarize:', error);
+                showMessage('Failed to connect to the server. Is it running?');
+            } finally {
+                btnText.innerHTML = originalText;
+                generateBtn.disabled = false;
+            }
         });
 
-        // --> ADD THIS BLOCK TO HANDLE THE RESPONSE <--
-        if (response.ok) {
-            const data = await response.json();
-            summaryDiv.innerHTML = data.summary.replace(/\n/g, '<br>'); // Display summary
-            summarySection.classList.remove('hidden'); // Show the summary section
-        } else {
-            const error = await response.json();
-            showMessage(`Error: ${error.message || 'Failed to generate summary'}`);
-        }
-        // --> END OF ADDED BLOCK <--
+        // --- UPDATED SHARE BUTTON LOGIC ---
+        shareBtn.addEventListener('click', async () => {
+            const email = document.getElementById('email').value;
+            const summary = summaryDiv.innerText; // Use innerText to get clean text
 
-    } catch (error) {
-        console.error('Error:', error);
-        // This will catch network errors, e.g., if the server is not running
-        showMessage('Failed to connect to the server. Is it running?');
-    } finally {
-        // Hide loader and re-enable button
-        btnText.textContent = 'Generate Summary';
-        btnLoader.classList.add('hidden');
-        generateBtn.disabled = false;
-    }
-});
+            if (!email.trim()) {
+                showMessage('Please enter a recipient email.');
+                return;
+            }
+            if (!summary.trim()) {
+                showMessage('There is no summary to share.');
+                return;
+            }
 
-        // shareBtn.addEventListener('click', () => {
-        //     //const email = document.getElementById('email').value;
-        //     // NEW CODE
-        //      summaryDiv.innerHTML = marked.parse(data.summary);  // Use innerText to get clean text
+            const originalShareText = shareBtn.textContent;
+            shareBtn.textContent = 'Sending...';
+            shareBtn.disabled = true;
 
-        //     if (!email.trim()) {
-        //         showMessage('Please enter a recipient email.');
-        //         return;
-        //     }
-        //     if (!summary.trim()) {
-        //         showMessage('There is no summary to share.');
-        //         return;
-        //     }
+            try {
+                const response = await fetch(`${API_BASE_URL}/send-email`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email, summary: summary }),
+                });
 
-        //     const subject = "Meeting Summary";
-        //     const body = encodeURIComponent(summary);
-        //    // window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
-        // });
+                if (response.ok) {
+                    showMessage('Email sent successfully!', false);
+                } else {
+                    const error = await response.json();
+                    showMessage(`Error: ${error.message || 'Failed to send email'}`);
+                }
+            } catch (error) {
+                console.error('Error sending email:', error);
+                showMessage('Failed to connect to the server to send email.');
+            } finally {
+                shareBtn.textContent = originalShareText;
+                shareBtn.disabled = false;
+            }
+        });
     </script>
 </body>
 </html>
